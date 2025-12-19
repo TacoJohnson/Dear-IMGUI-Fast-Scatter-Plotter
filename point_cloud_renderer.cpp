@@ -414,9 +414,15 @@ void PointCloudRenderer::renderAxisLabels(int screenWidth, int screenHeight) {
     if (maxX == minX || maxY == minY || maxZ == minZ) return;
     
     ImDrawList* drawList = ImGui::GetForegroundDrawList();
+    
+    // Get projection matrices
+    float modelview[16], projection[16];
+    int viewport[4];
+    camera.getProjectionMatrices(modelview, projection, viewport, screenWidth, screenHeight);
+    
     char label[32];
     
-    // Calculate label skip
+    // Calculate grid parameters
     float sizeX = maxX - minX;
     float sizeY = maxY - minY;
     float sizeZ = maxZ - minZ;
@@ -424,103 +430,56 @@ void PointCloudRenderer::renderAxisLabels(int screenWidth, int screenHeight) {
     int numLinesY = (int)(sizeY / gridSpacing) + 1;
     int numLinesZ = (int)(sizeZ / gridSpacing) + 1;
     
-    int skipX = (numLinesX > 15) ? 2 : 1;
-    int skipY = (numLinesY > 15) ? 2 : 1;
-    int skipZ = (numLinesZ > 15) ? 2 : 1;
-    if (numLinesX > 30) skipX = 4;
-    if (numLinesY > 30) skipY = 4;
-    if (numLinesZ > 30) skipZ = 4;
+    // Adaptive skip
+    int skipX = (numLinesX > 10) ? 2 : 1;
+    int skipY = (numLinesY > 10) ? 2 : 1;
+    int skipZ = (numLinesZ > 10) ? 2 : 1;
     
-    // Use fixed 2D positions at viewport edges (like matplotlib)
-    float padding = 10.0f;
-    float labelHeight = 20.0f;
-    float leftMargin = 60.0f;
-    float bottomMargin = 40.0f;
+    // Helper to draw label at 3D position
+    auto drawAt = [&](float wx, float wy, float wz, const char* text, ImU32 color) {
+        GLdouble sx, sy, sz;
+        if (gluProject(wx, wy, wz,
+                      (const GLdouble*)modelview,
+                      (const GLdouble*)projection,
+                      viewport,
+                      &sx, &sy, &sz) == GL_TRUE && sz >= 0.0 && sz <= 1.0) {
+            
+            float fx = (float)sx;
+            float fy = viewport[3] - (float)sy;
+            
+            ImVec2 tsize = ImGui::CalcTextSize(text);
+            ImVec2 tpos(fx - tsize.x/2, fy - tsize.y/2);
+            
+            drawList->AddRectFilled(
+                ImVec2(tpos.x-2, tpos.y-2),
+                ImVec2(tpos.x+tsize.x+2, tpos.y+tsize.y+2),
+                IM_COL32(0,0,0,220)
+            );
+            drawList->AddText(tpos, color, text);
+        }
+    };
     
-    // Color scheme
-    ImU32 xColor = IM_COL32(255, 100, 100, 255);
-    ImU32 yColor = IM_COL32(100, 255, 100, 255);
-    ImU32 zColor = IM_COL32(100, 100, 255, 255);
-    ImU32 bgColor = IM_COL32(0, 0, 0, 200);
-    ImU32 textColor = IM_COL32(255, 255, 255, 255);
-    
-    // X-axis labels (bottom of screen)
-    float xLabelY = screenHeight - bottomMargin / 2;
-    float xAxisWidth = screenWidth - leftMargin - padding * 2;
-    
+    // X-axis labels along bottom edge
     for (int i = 0; i <= numLinesX; i += skipX) {
         float x = minX + i * gridSpacing;
         if (x > maxX) x = maxX;
-        
-        float t = (float)i / numLinesX;  // 0 to 1
-        float screenX = leftMargin + t * xAxisWidth;
-        
         snprintf(label, sizeof(label), "%.1f", x);
-        ImVec2 textSize = ImGui::CalcTextSize(label);
-        ImVec2 textPos(screenX - textSize.x / 2, xLabelY - textSize.y / 2);
-        
-        drawList->AddRectFilled(
-            ImVec2(textPos.x - 3, textPos.y - 2),
-            ImVec2(textPos.x + textSize.x + 3, textPos.y + textSize.y + 2),
-            bgColor
-        );
-        drawList->AddText(textPos, xColor, label);
-        
-        // Small tick mark
-        drawList->AddLine(
-            ImVec2(screenX, xLabelY - 15),
-            ImVec2(screenX, xLabelY - 10),
-            xColor, 2.0f
-        );
+        drawAt(x, minY, minZ, label, IM_COL32(255,100,100,255));
     }
     
-    // X-axis label
-    ImVec2 xAxisLabel = ImVec2(screenWidth / 2, screenHeight - 5);
-    drawList->AddText(xAxisLabel, xColor, "X axis");
-    
-    // Y-axis labels (left side of screen)
-    float yLabelX = leftMargin / 2;
-    float yAxisHeight = screenHeight - bottomMargin - padding * 2;
-    float yStart = padding;
-    
+    // Y-axis labels along left edge
     for (int i = 0; i <= numLinesY; i += skipY) {
         float y = minY + i * gridSpacing;
         if (y > maxY) y = maxY;
-        
-        float t = (float)i / numLinesY;  // 0 to 1
-        float screenY = yStart + yAxisHeight - t * yAxisHeight;  // Inverted (0 at bottom)
-        
         snprintf(label, sizeof(label), "%.1f", y);
-        ImVec2 textSize = ImGui::CalcTextSize(label);
-        ImVec2 textPos(yLabelX - textSize.x / 2, screenY - textSize.y / 2);
-        
-        drawList->AddRectFilled(
-            ImVec2(textPos.x - 3, textPos.y - 2),
-            ImVec2(textPos.x + textSize.x + 3, textPos.y + textSize.y + 2),
-            bgColor
-        );
-        drawList->AddText(textPos, yColor, label);
-        
-        // Small tick mark
-        drawList->AddLine(
-            ImVec2(leftMargin - 15, screenY),
-            ImVec2(leftMargin - 10, screenY),
-            yColor, 2.0f
-        );
+        drawAt(minX, y, minZ, label, IM_COL32(100,255,100,255));
     }
     
-    // Y-axis label
-    drawList->AddText(ImVec2(5, screenHeight / 2), yColor, "Y axis");
-    
-    // Z-axis labels (right side - optional, or could be shown in legend)
-    // For now, show Z range in top-right corner
-    snprintf(label, sizeof(label), "Z: %.1f to %.1f", minZ, maxZ);
-    ImVec2 zLabelPos(screenWidth - 150, 10);
-    ImVec2 zTextSize = ImGui::CalcTextSize(label);
-    drawList->AddRectFilled(
-        ImVec2(zLabelPos.x - 3, zLabelPos.y - 2),
-        ImVec2(zLabelPos.x + zTextSize.x + 3, zLabelPos.y + zTextSize.y + 2),
-        bgColor
-    );
-    drawList->AddText(zLabelPos, zColor, label);
+    // Z-axis labels along back edge
+    for (int i = 0; i <= numLinesZ; i += skipZ) {
+        float z = minZ + i * gridSpacing;
+        if (z > maxZ) z = maxZ;
+        snprintf(label, sizeof(label), "%.1f", z);
+        drawAt(minX, minY, z, label, IM_COL32(100,100,255,255));
+    }
 }
