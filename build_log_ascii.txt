@@ -1,0 +1,5 @@
+MSBuild version 17.7.2+d6990bcfa for .NET Framework
+
+  glfw.vcxproj -> C:\Users\nkocur\Desktop\Projects\Dear-IMGUI-Fast-Scatter-Plotter\build\_deps\glfw-build\src\Release\glfw3.lib
+  lidar_example.cpp
+C:\Users\nkocur\Desktop\Projects\Dear-IMGUI-Fast-Scatter-Plotter\lidar_example.cpp(24,34): error C2065: 'M_PI': undeclared identifier [C:\Users\nkocur\Desktop\Projects\Dear-IMGUI-Fast-Scatter-Plotter\build\lidar_viewer.vcxproj]

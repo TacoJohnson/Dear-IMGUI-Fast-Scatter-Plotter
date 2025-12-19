@@ -38,13 +38,13 @@ set(IMGUI_SOURCES
 )
 
 # Create executable (WIN32 flag removes console window on Windows)
-add_executable(imgui_example WIN32
+add_executable(imgui_example
     main.cpp
     ${IMGUI_SOURCES}
 )
 
 # LIDAR Point Cloud Viewer executable
-add_executable(lidar_viewer WIN32
+add_executable(lidar_viewer
     lidar_example.cpp
     point_cloud_renderer.cpp
     ${IMGUI_SOURCES}

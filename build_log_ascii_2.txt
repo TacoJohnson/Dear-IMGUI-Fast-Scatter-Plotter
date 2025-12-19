@@ -1,0 +1,7 @@
+MSBuild version 17.7.2+d6990bcfa for .NET Framework
+
+  glfw.vcxproj -> C:\Users\nkocur\Desktop\Projects\Dear-IMGUI-Fast-Scatter-Plotter\build\_deps\glfw-build\src\Release\glfw3.lib
+  lidar_example.cpp
+C:\Users\nkocur\Desktop\Projects\Dear-IMGUI-Fast-Scatter-Plotter\lidar_example.cpp(29,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data [C:\Users\nkocur\Desktop\Projects\Dear-IMGUI-Fast-Scatter-Plotter\build\lidar_viewer.vcxproj]
+MSVCRT.lib(exe_winmain.obj) : error LNK2019: unresolved external symbol WinMain referenced in function "int __cdecl __scrt_common_main_seh(void)" (?__scrt_common_main_seh@@YAHXZ) [C:\Users\nkocur\Desktop\Projects\Dear-IMGUI-Fast-Scatter-Plotter\build\lidar_viewer.vcxproj]
+C:\Users\nkocur\Desktop\Projects\Dear-IMGUI-Fast-Scatter-Plotter\build\Release\lidar_viewer.exe : fatal error LNK1120: 1 unresolved externals [C:\Users\nkocur\Desktop\Projects\Dear-IMGUI-Fast-Scatter-Plotter\build\lidar_viewer.vcxproj]

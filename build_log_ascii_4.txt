@@ -1,0 +1,6 @@
+MSBuild version 17.7.2+d6990bcfa for .NET Framework
+
+  Checking Build System
+  glfw.vcxproj -> C:\Users\nkocur\Desktop\Projects\Dear-IMGUI-Fast-Scatter-Plotter\build\_deps\glfw-build\src\Release\glfw3.lib
+  Building Custom Rule C:/Users/nkocur/Desktop/Projects/Dear-IMGUI-Fast-Scatter-Plotter/CMakeLists.txt
+  lidar_viewer.vcxproj -> C:\Users\nkocur\Desktop\Projects\Dear-IMGUI-Fast-Scatter-Plotter\build\Release\lidar_viewer.exe
